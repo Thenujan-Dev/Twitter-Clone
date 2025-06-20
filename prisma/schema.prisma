@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+enum NotiType{
+    Like
+    Follow
+}
+model User{
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    username String @unique
+    email String @unique
+    password String
+    followers String[] @default([])
+    following String[] @default([])
+    bio String @default("")
+    link String @default("")
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Post Post[]
+    Like Like[]
+    Comment Comment[]
+}
+model Post{
+      id String @id @default(auto()) @map("_id") @db.ObjectId
+      title String
+      body String
+      userId String @db.ObjectId
+      user User @relation(fields: [userId],references: [id])
+      createdAt DateTime @default(now())
+      updatedAt DateTime @updatedAt
+      Like Like[]
+      Comment Comment[]
+}
+model Like{
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    postId String @db.ObjectId
+    post Post @relation(fields: [postId],references: [id])
+    userId String @db.ObjectId
+    user User @relation(fields: [userId],references: [id]) 
+      createdAt DateTime @default(now())
+}
+model Comment{
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    postId String @db.ObjectId
+    text String
+    post Post @relation(fields: [postId],references: [id])
+    userId String @db.ObjectId
+    user User @relation(fields: [userId],references: [id]) 
+    createdAt DateTime @default(now())
+}
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  from      String   @db.ObjectId
+  to        String   @db.ObjectId
+  type      NotiType
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
