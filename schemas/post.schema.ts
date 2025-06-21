@@ -14,5 +14,6 @@ const PostSchema = z.object({
       message: "Body must be at least 60 words",
     }),
 });
+export type PostSchemaType = z.infer<typeof PostSchema>;
 
 export default PostSchema;

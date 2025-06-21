@@ -12,6 +12,7 @@ const useLogout = () => {
       const data: { success: boolean } = await response.data;
       if (data.success) {
         toast.success("Logout successfull!");
+        window.location.reload();
       }
       return data;
     } catch (error) {

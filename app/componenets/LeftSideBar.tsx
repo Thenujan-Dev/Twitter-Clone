@@ -13,7 +13,7 @@ const LeftSideBar = () => {
   const { authUser } = useGlobalContext();
   const { mutate: LogoutUser } = useLogout();
   return (
-    <div className="flex flex-col h-full justify-between items-center pt-10">
+    <div className="flex flex-col h-full gap-14 items-center pt-10">
       <div className="">
         <BsTwitterX className="text-6xl text-blue-600" />
       </div>
@@ -47,7 +47,7 @@ const LeftSideBar = () => {
         </li>
       </div>
 
-      <div className="flex items-center justify-between w-full p-3 rounded-xl hover:bg-zinc-800 transition-all duration-300">
+      <div className="mt-40 flex items-center justify-between w-full p-3 rounded-xl hover:bg-zinc-800 transition-all duration-300">
         {/* Left: Avatar + Name */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 flex items-center justify-center bg-pink-500 text-white text-sm font-bold rounded-full">

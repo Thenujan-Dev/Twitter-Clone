@@ -27,6 +27,11 @@ export const GET = async () => {
           createdAt: "desc",
         },
         include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
           Comment: {
             select: {
               text: true,

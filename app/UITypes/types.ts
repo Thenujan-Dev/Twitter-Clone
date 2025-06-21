@@ -4,8 +4,35 @@ export type authUserType = {
   email: string;
   bio: string;
   link: string;
-  followers: string[]; // array of userIds
-  following: string[]; // array of userIds
+  followers: string[];
+  following: string[];
   createdAt: string;
   updatedAt: string;
 };
+export interface UserType {
+  id: string;
+  username: string;
+}
+
+export interface CommentType {
+  text: string;
+  user: UserType;
+}
+
+export interface LikeType {
+  user: UserType;
+}
+
+export interface PostType {
+  id: string;
+  title: string;
+  body: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    username: string;
+  };
+  Comment: CommentType[];
+  Like: LikeType[];
+}

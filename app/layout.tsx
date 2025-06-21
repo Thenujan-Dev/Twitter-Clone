@@ -40,7 +40,7 @@ export default function RootLayout({
               )}
               <div
                 className={`${
-                  showSidebars ? "w-[70%]" : "w-full"
+                  showSidebars ? "w-[70%] h-dvh" : "h-full"
                 } flex justify-center p-5`}
               >
                 {children}
