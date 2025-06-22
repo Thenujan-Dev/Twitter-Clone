@@ -23,9 +23,46 @@ export const GET = async () => {
       const followingUserIds = currentUser.following;
       const FollowingPosts = await prisma.post.findMany({
         where: { userId: { in: followingUserIds } },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          Comment: {
+            select: {
+              text: true,
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          Like: {
+            omit: {
+              userId: true,
+              postId: true,
+              id: true,
+              createdAt: true,
+            },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+        },
       });
 
-      return NextResponse.json(FollowingPosts);
+      return NextResponse.json(
+        { success: true, FollowingPosts },
+        { status: 200 }
+      );
     });
   } catch (error) {
     return handleError({

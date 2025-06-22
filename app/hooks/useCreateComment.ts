@@ -14,7 +14,12 @@ const useCreateComment = () => {
     mutationFn: commentPost,
     onSuccess: () => {
       toast.success("Commented successfully!");
-      queryClient.invalidateQueries({ queryKey: ["get-all-posts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["get-all-posts"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-Following-posts"],
+      });
     },
     onError: () => {
       toast.error("something went to wrong");

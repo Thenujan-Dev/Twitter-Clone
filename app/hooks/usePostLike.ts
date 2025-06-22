@@ -15,53 +15,86 @@ const usePostLike = () => {
     return response.data;
   };
 
+  const updateCache = (
+    key: string[],
+    postId: string,
+    userId: string,
+    username: string
+  ) => {
+    const prevData = queryClient.getQueryData<{
+      allPosts?: PostType[];
+      FollowingPosts?: PostType[];
+    }>(key);
+
+    queryClient.setQueryData(key, (oldData: any) => {
+      if (!oldData) return oldData;
+
+      const postKey = oldData.allPosts ? "allPosts" : "FollowingPosts";
+
+      return {
+        ...oldData,
+        [postKey]: oldData[postKey].map((post: PostType) => {
+          if (post.id !== postId) return post;
+
+          const alreadyLiked = post.Like?.some(
+            (like) => like.user.id === userId
+          );
+
+          return {
+            ...post,
+            Like: alreadyLiked
+              ? post.Like.filter((like) => like.user.id !== userId)
+              : [...post.Like, { user: { id: userId, username: username } }],
+          };
+        }),
+      };
+    });
+
+    return prevData;
+  };
+
   return useMutation({
     mutationFn: LikePost,
 
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ["get-all-posts"] });
+      await queryClient.cancelQueries({ queryKey: ["get-following-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["get-All-Notifications"] });
 
-      const previousData = queryClient.getQueryData<{ allPosts: PostType[] }>([
-        "get-all-posts",
-      ]);
+      const previousAllPosts = updateCache(
+        ["get-all-posts"],
+        postId,
+        authUser.id,
+        authUser.username
+      );
+      const previousFollowingPosts = updateCache(
+        ["get-following-posts"],
+        postId,
+        authUser.id,
+        authUser.username
+      );
 
-      queryClient.setQueryData(["get-all-posts"], (oldData: any) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          allPosts: oldData.allPosts.map((post: PostType) => {
-            if (post.id !== postId) return post;
-
-            const alreadyLiked = post.Like?.some(
-              (like) => like.user.id === authUser.id
-            );
-
-            return {
-              ...post,
-              Like: alreadyLiked
-                ? post.Like.filter((like) => like.user.id !== authUser.id)
-                : [
-                    ...post.Like,
-                    { user: { id: authUser.id, username: authUser.username } },
-                  ],
-            };
-          }),
-        };
-      });
-
-      return { previousData };
+      return { previousAllPosts, previousFollowingPosts };
     },
 
     onError: (_err, _postId, context) => {
       toast.error("Failed to update like");
-      if (context?.previousData) {
-        queryClient.setQueryData(["get-all-posts"], context.previousData);
+
+      if (context?.previousAllPosts) {
+        queryClient.setQueryData(["get-all-posts"], context.previousAllPosts);
+      }
+
+      if (context?.previousFollowingPosts) {
+        queryClient.setQueryData(
+          ["get-following-posts"],
+          context.previousFollowingPosts
+        );
       }
     },
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["get-all-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["get-following-posts"] });
     },
   });
 };
